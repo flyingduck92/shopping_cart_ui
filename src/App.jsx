@@ -1,9 +1,39 @@
+import { useEffect, useState } from 'react'
+import ProductList from './components/ProductList'
 
 function App() {
 
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch('/api/products')
+        if (!res.ok) throw new Error('Failed to fetch products')
+        const data = await res.json()
+        setProducts(data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
+
   return (
-    <div>
-      <h1>Shopping Cart UI</h1>
+    <div className='min-h-screen bg-gray-100 p-6'>
+      <h1 className='text-3xl font-bold mb-6'>Product Catalog</h1>
+
+      {loading && <p>Loading...</p>}
+      {error && <div className='error'>❌{error}</div>}
+
+      {
+        !error && !loading &&
+        <ProductList products={products} />
+      }
     </div>
   )
 }
